@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  /* config options here */
+  distDir: process.env.BUILD_DIR || '.next',
+  images: {
+    unoptimized: true
+  }
 };
 
 export default nextConfig;

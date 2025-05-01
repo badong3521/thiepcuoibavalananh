@@ -1,103 +1,187 @@
+"use client";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const images = [
+    {
+      id: 1,
+      src : "/thiep1.jpg"
+    },
+    {
+      id: 2,
+      src : "/thiep2.jpg"
+    },
+    {
+      id: 3,
+      src : "/thiep3.jpg"
+    }
+  ]
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? '100%' : '-100%',
+      opacity: 0,
+      scale: 0.8,
+      rotateY: direction > 0 ? 45 : -45
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      rotateY: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.4, 0, 0.2, 1]
+      }
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? '100%' : '-100%',
+      opacity: 0,
+      scale: 0.8,
+      rotateY: direction < 0 ? 45 : -45
+    })
+  };
+
+  const buttonVariants = {
+    rest: { scale: 1, opacity: 0.7 },
+    hover: { 
+      scale: 1.2, 
+      opacity: 1,
+      transition: {
+        duration: 0.2,
+        ease: "easeInOut"
+      }
+    },
+    tap: { 
+      scale: 0.9,
+      transition: {
+        duration: 0.1
+      }
+    }
+  };
+
+  const dotVariants = {
+    initial: { scale: 0.8, opacity: 0.5 },
+    active: { 
+      scale: 1.2, 
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    },
+    hover: {
+      scale: 1.4,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
+
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
+
+  const paginate = (newDirection: number) => {
+    setDirection(newDirection);
+    setCurrentIndex((prevIndex) => (prevIndex + newDirection + images.length) % images.length);
+  };
+
+  return (
+    <main className="h-screen w-screen overflow-hidden bg-black/5">
+      <div className="relative w-full h-full overflow-hidden">
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            key={currentIndex}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.8 },
+              rotateY: { duration: 0.8 },
+              scale: { duration: 0.8 }
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={1}
+            onDragEnd={(e, { offset, velocity }) => {
+              const swipe = swipePower(offset.x, velocity.x);
+              if (swipe < -swipeConfidenceThreshold) {
+                paginate(1);
+              } else if (swipe > swipeConfidenceThreshold) {
+                paginate(-1);
+              }
+            }}
+            className="absolute w-full h-full perspective-1000"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            <div className="relative w-full h-full overflow-hidden">
+              <Image
+                src={images[currentIndex].src}
+                alt={`Thiệp mời cưới ${images[currentIndex].id}`}
+                fill
+                className="object-contain select-none transform-gpu"
+                objectFit=""
+                priority
+                quality={100}
+              />
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <motion.button
+          variants={buttonVariants}
+          initial="rest"
+          whileHover="hover"
+          whileTap="tap"
+          className="absolute left-6 top-1/2 -translate-y-1/2 hover:bg-white/20 z-20 p-3 rounded-full backdrop-blur-sm bg-black/10"
+          onClick={() => paginate(-1)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </motion.button>
+
+        <motion.button
+          variants={buttonVariants}
+          initial="rest"
+          whileHover="hover"
+          whileTap="tap"
+          className="absolute right-6 top-1/2 -translate-y-1/2 hover:bg-white/20 z-20 p-3 rounded-full backdrop-blur-sm bg-black/10"
+          onClick={() => paginate(1)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </motion.button>
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+          {images.map((_, index) => (
+            <motion.button
+              key={index}
+              variants={dotVariants}
+              initial="initial"
+              animate={index === currentIndex ? "active" : "initial"}
+              whileHover="hover"
+              className={`w-2 h-2 rounded-full ${
+                index === currentIndex ? 'bg-white' : 'bg-white/50'
+              }`}
+              onClick={() => {
+                setDirection(index > currentIndex ? 1 : -1);
+                setCurrentIndex(index);
+              }}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }
