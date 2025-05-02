@@ -7,7 +7,7 @@ export default function Home() {
   const images = [
     {
       id: 1,
-      src : "/thiep1.jpeg"
+      src : "/thiep1.jpg"
     },
     {
       id: 2,
