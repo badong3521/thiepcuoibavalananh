@@ -8,13 +8,13 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Thiệp cưới Ba và Lan Anh",
-  description: "Kính mời các quý khách",
+  title: "Thiệp cưới Hoàng Ba và Lan Anh",
+  description: "Kính mời quý khách",
   openGraph: {
-    title: "Thiệp cưới Ba và Lan Anh",
-    description: "Kính mời các quý khách",
+    title: "Thiệp cưới Hoàng Ba và Lan Anh",
+    description: "Kính mời quý khách",
     url: "https://thiepcuoibavalananh.vercel.app/", // Thay bằng domain thật nếu có
-    siteName: "Thiệp cưới Ba và Lan Anh",
+    siteName: "Thiệp cưới Hoàng Ba và Lan Anh",
     images: [
       {
         url: "/thiep1.jpg", // Đường dẫn ảnh trong thư mục public
